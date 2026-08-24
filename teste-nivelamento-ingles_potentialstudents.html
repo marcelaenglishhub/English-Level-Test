@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teste de Nivelamento — EnglishHub with Marcela</title>
+<style>
+  :root{
+    --navy:#084884;
+    --marsala:#7B0828;
+    --orange:#E34D1B;
+    --cream:#FBF5F3;
+    --navy-tint: #e7eef5;
+    --ink:#241512;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cream);
+    font-family: Georgia, 'Times New Roman', serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 64px;
+  }
+  .app{
+    width:100%;
+    max-width:640px;
+  }
+  header{
+    text-align:center;
+    margin-bottom:28px;
+  }
+  .brand{
+    font-family: Georgia, serif;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-size:12px;
+    color:var(--marsala);
+    font-weight:bold;
+    margin-bottom:6px;
+  }
+  h1{
+    font-size:26px;
+    color:var(--navy);
+    margin:0 0 8px;
+  }
+  .sub{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:14px;
+    color:#5a5250;
+    line-height:1.5;
+  }
+
+  /* Level ladder — signature element */
+  .ladder{
+    display:flex;
+    gap:4px;
+    margin:22px 0 8px;
+  }
+  .rung{
+    flex:1;
+    height:8px;
+    border-radius:4px;
+    background:#e3d9d4;
+    position:relative;
+    overflow:hidden;
+  }
+  .rung.filled{ background:var(--orange); }
+  .rung.current{ background:var(--navy); }
+  .ladder-labels{
+    display:flex;
+    justify-content:space-between;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:11px;
+    color:#8a7f7c;
+    letter-spacing:.04em;
+    margin-bottom:24px;
+  }
+
+  .card{
+    background:#fff;
+    border:1px solid #ece1dd;
+    border-radius:10px;
+    padding:28px 26px;
+    box-shadow: 0 2px 14px rgba(8,72,132,0.06);
+  }
+
+  .q-meta{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:12px;
+    color:var(--marsala);
+    font-weight:600;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .q-text{
+    font-size:19px;
+    line-height:1.4;
+    color:var(--ink);
+    margin-bottom:20px;
+  }
+  .passage{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:14.5px;
+    line-height:1.65;
+    color:#4a413f;
+    background:var(--navy-tint);
+    border-left:3px solid var(--navy);
+    padding:14px 16px;
+    border-radius:0 6px 6px 0;
+    margin-bottom:18px;
+  }
+  .passage-label{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--navy);
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .opt{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    text-align:left;
+    padding:13px 16px;
+    border:1.5px solid #e3d9d4;
+    background:var(--cream);
+    border-radius:8px;
+    font-size:15px;
+    color:var(--ink);
+    cursor:pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .opt:hover{
+    border-color:var(--navy);
+    background:var(--navy-tint);
+  }
+  .opt:active{ transform: translateY(1px); }
+
+  .nav-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:22px;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+  }
+  .back-btn{
+    background:none;
+    border:none;
+    color:#8a7f7c;
+    font-size:13px;
+    cursor:pointer;
+    padding:6px 0;
+  }
+  .back-btn:hover{ color:var(--marsala); }
+  .back-btn:disabled{ visibility:hidden; }
+  .count{
+    font-size:13px;
+    color:#8a7f7c;
+  }
+
+  /* Results screen */
+  .result{
+    text-align:center;
+  }
+  .result .level-badge{
+    display:inline-block;
+    font-size:44px;
+    font-weight:bold;
+    color:#fff;
+    background:var(--navy);
+    padding:14px 30px;
+    border-radius:10px;
+    margin:8px 0 18px;
+    letter-spacing:.02em;
+  }
+  .result h2{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:15px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--marsala);
+    margin:0 0 4px;
+  }
+  .result p.desc{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:15px;
+    line-height:1.6;
+    color:#4a413f;
+    max-width:480px;
+    margin:0 auto 22px;
+  }
+  .score-line{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:13px;
+    color:#8a7f7c;
+    margin-bottom:26px;
+  }
+  .restart{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    background:var(--orange);
+    color:#fff;
+    border:none;
+    padding:12px 24px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .restart:hover{ opacity:.92; }
+
+  /* Email gate */
+  .gate{
+    text-align:center;
+  }
+  .gate h2{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:15px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--marsala);
+    margin:0 0 8px;
+  }
+  .gate p{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:15px;
+    line-height:1.6;
+    color:#4a413f;
+    max-width:440px;
+    margin:0 auto 20px;
+  }
+  .gate input[type="text"], .gate input[type="email"]{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    width:100%;
+    max-width:340px;
+    padding:12px 14px;
+    border:1.5px solid #e3d9d4;
+    border-radius:8px;
+    font-size:15px;
+    margin-bottom:6px;
+  }
+  .gate input:focus{ outline:none; border-color:var(--navy); }
+  .gate .error{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:12.5px;
+    color:var(--marsala);
+    min-height:18px;
+    margin-bottom:10px;
+  }
+  .gate .privacy{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:11.5px;
+    color:#a89e9b;
+    margin-top:18px;
+  }
+
+  /* Admin */
+  .admin-link{
+    text-align:center;
+    margin-top:10px;
+  }
+  .admin-link a{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:11px;
+    color:#c9beba;
+    text-decoration:none;
+  }
+  .admin-link a:hover{ color:var(--marsala); }
+  .lead-table{
+    width:100%;
+    border-collapse:collapse;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:13px;
+    text-align:left;
+  }
+  .lead-table th{
+    color:var(--marsala);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    border-bottom:1.5px solid #e3d9d4;
+    padding:6px 8px;
+  }
+  .lead-table td{
+    padding:8px;
+    border-bottom:1px solid #f1e9e6;
+    color:#4a413f;
+  }
+
+  footer{
+    text-align:center;
+    margin-top:26px;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:11px;
+    color:#a89e9b;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">EnglishHub with Marcela</div>
+    <h1>Teste de Nivelamento de Inglês</h1>
+    <div class="sub">22 perguntas, do básico ao avançado, incluindo um texto de compreensão de leitura. Responda com sinceridade — não há pegadinhas, só o objetivo de encontrar o ponto de partida ideal.</div>
+  </header>
+
+  <div class="ladder" id="ladder"></div>
+  <div class="ladder-labels"><span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span></div>
+
+  <div class="card" id="card"></div>
+
+  <div class="admin-link"><a href="#" id="adminLink">painel (admin)</a></div>
+
+  <footer>EnglishHub with Marcela · Teste de nivelamento interno</footer>
+</div>
+
+<script>
+const questions = [
+  // A1
+  {level:"A1", text:"Complete: My name ____ Ana.", options:["is","are","am","be"], correct:0},
+  {level:"A1", text:"Choose the correct sentence.", options:["She go to school every day.","She goes to school every day.","She going to school every day.","She gone to school every day."], correct:1},
+  {level:"A1", text:"Complete: I ____ two brothers and one sister.", options:["has","have","having","haves"], correct:1},
+  {level:"A1", text:"What is the plural of 'child'?", options:["childs","childes","children","childrens"], correct:2},
+  // A2
+  {level:"A2", text:"Complete: Yesterday, we ____ to the cinema.", options:["go","goes","went","have gone"], correct:2},
+  {level:"A2", text:"Choose the correct comparative: This book is ____ than that one.", options:["more interesting","interesting","interestinger","most interesting"], correct:0},
+  {level:"A2", text:"Complete: There ____ a lot of people at the party last night.", options:["was","were","is","are"], correct:1},
+  {level:"A2", text:"Choose the correct preposition: I'm looking forward ____ your visit.", options:["for","to","at","with"], correct:1},
+  // B1
+  {level:"B1", text:"Complete: I ____ never ____ sushi before I moved to Japan.", options:["have / eaten","had / eaten","have / ate","was / eating"], correct:1},
+  {level:"B1", text:"Complete the phrasal verb: Could you ____ the form before Friday?", options:["fill in","fill on","fill for","fill at"], correct:0},
+  {level:"B1", text:"Choose the correct conditional: If it rains tomorrow, we ____ the trip.", options:["would cancel","will cancel","cancel","canceled"], correct:1},
+  {level:"B1", text:"Complete: She's been working here ____ 2019.", options:["for","since","during","from"], correct:1},
+  // B1 — reading comprehension
+  {level:"B1", passage:"Carla worked as a receptionist for five years, but she always dreamed of working with numbers. Last month, a small accounting firm offered her a trainee position. The salary was lower than her current job, but the company promised full training and flexible hours. After thinking about it for a week, Carla decided to accept the offer. She believed the experience would open new doors in the future, even if it meant a short-term sacrifice.", text:"Why did Carla accept the trainee position, even with a lower salary?", options:["She didn't like her old job at all","She thought it would help her career in the long run","The accounting firm paid better than her previous job","She wanted to work fewer hours immediately"], correct:1},
+  {level:"B1", passage:"Carla worked as a receptionist for five years, but she always dreamed of working with numbers. Last month, a small accounting firm offered her a trainee position. The salary was lower than her current job, but the company promised full training and flexible hours. After thinking about it for a week, Carla decided to accept the offer. She believed the experience would open new doors in the future, even if it meant a short-term sacrifice.", text:"According to the text, what did the company offer besides the trainee position?", options:["A company car","A higher salary than her old job","Training and flexible hours","A permanent contract from day one"], correct:2},
+  // B2
+  {level:"B2", text:"Choose the correct passive form: The report ____ by the team by Friday.", options:["will finish","will be finished","is finishing","finished"], correct:1},
+  {level:"B2", text:"Complete: If I ____ known about the meeting, I would have attended.", options:["have","had","would have","was"], correct:1},
+  {level:"B2", text:"Choose the correct reported speech: He said he ____ tired.", options:["is","was","has been","be"], correct:1},
+  {level:"B2", text:"Which word best fits? The negotiations were ____ difficult, but both sides reached an agreement.", options:["surprising","surprisingly","surprise","surprised"], correct:1},
+  // C1
+  {level:"C1", text:"Choose the correct inversion: Not only ____ late, but he also forgot the documents.", options:["he was","was he","he did","did he was"], correct:1},
+  {level:"C1", text:"Which sentence uses the collocation correctly?", options:["She made a strong decision to leave.","She took a strong decision to leave.","She made a firm decision to leave.","She did a firm decision to leave."], correct:2},
+  {level:"C1", text:"Complete: ____ the delays, the project was delivered on time.", options:["Despite of","Although","In spite of","Even though of"], correct:2},
+  // C2
+  {level:"C2", text:"Which sentence best conveys a subtle, diplomatic disagreement?", options:["You're wrong about that.","I don't agree with you at all.","I see your point, though I'd frame it a little differently.","That's not true."], correct:2}
+];
+
+let current = 0;
+let answers = new Array(questions.length).fill(null);
+
+const card = document.getElementById('card');
+const ladder = document.getElementById('ladder');
+
+// Cumulative question count at the end of each level group: A1,A2,B1,B2,C1,C2
+const levelBoundaries = [4, 8, 14, 18, 21, 22];
+
+function segmentForIndex(i){
+  for(let s=0;s<levelBoundaries.length;s++){
+    if(i < levelBoundaries[s]) return s;
+  }
+  return levelBoundaries.length - 1;
+}
+
+function renderLadder(){
+  ladder.innerHTML = '';
+  const currentSeg = segmentForIndex(current);
+  for(let i=0;i<levelBoundaries.length;i++){
+    const rung = document.createElement('div');
+    rung.className = 'rung';
+    if(i < currentSeg) rung.classList.add('filled');
+    if(i === currentSeg) rung.classList.add('current');
+    ladder.appendChild(rung);
+  }
+}
+
+function renderQuestion(){
+  renderLadder();
+  const q = questions[current];
+  const passageHtml = q.passage ? `<div class="passage-label">Texto</div><div class="passage">${q.passage}</div>` : '';
+  card.innerHTML = `
+    <div class="q-meta">Nível de referência: ${q.level} · Pergunta ${current+1} de ${questions.length}</div>
+    ${passageHtml}
+    <div class="q-text">${q.text}</div>
+    <div class="options">
+      ${q.options.map((opt,i)=>`<button class="opt" data-i="${i}">${opt}</button>`).join('')}
+    </div>
+    <div class="nav-row">
+      <button class="back-btn" id="backBtn" ${current===0?'disabled':''}>&larr; Voltar</button>
+      <span class="count">${current+1} / ${questions.length}</span>
+    </div>
+  `;
+  card.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      answers[current] = parseInt(btn.dataset.i);
+      if(current < questions.length - 1){
+        current++;
+        renderQuestion();
+      } else {
+        renderEmailGate();
+      }
+    });
+  });
+  const backBtn = document.getElementById('backBtn');
+  if(backBtn){
+    backBtn.addEventListener('click', ()=>{
+      if(current>0){ current--; renderQuestion(); }
+    });
+  }
+}
+
+function computeLevel(score){
+  if(score <= 3) return {code:"A1", desc:"Iniciante. Reconhece e usa expressões básicas do dia a dia, mas ainda precisa de apoio constante para se comunicar."};
+  if(score <= 7) return {code:"A2", desc:"Básico. Consegue se comunicar em situações simples e rotineiras, com vocabulário e estruturas ainda limitados."};
+  if(score <= 13) return {code:"B1", desc:"Intermediário. Lida com a maioria das situações do dia a dia, entende textos simples e consegue se expressar sobre temas familiares com razoável autonomia."};
+  if(score <= 17) return {code:"B2", desc:"Intermediário superior. Comunica-se com fluência e espontaneidade em contextos variados, incluindo temas mais abstratos ou técnicos."};
+  if(score <= 20) return {code:"C1", desc:"Avançado. Usa a língua de forma flexível e eficaz para fins sociais, acadêmicos e profissionais, com boa precisão."};
+  return {code:"C2", desc:"Proficiente. Compreende e se expressa com naturalidade e precisão praticamente em qualquer contexto, próximo do domínio nativo."};
+}
+
+function renderEmailGate(){
+  const score = answers.reduce((acc,a,i)=> acc + (a===questions[i].correct?1:0), 0);
+  card.innerHTML = `
+    <div class="gate">
+      <h2>Quase lá</h2>
+      <p>Digite seu e-mail para ver seu nível de inglês e receber dicas personalizadas da EnglishHub.</p>
+      <input type="email" id="leadEmail" placeholder="seuemail@exemplo.com" autocomplete="email">
+      <div class="error" id="gateError"></div>
+      <button class="restart" id="gateSubmit">Ver meu resultado</button>
+      <div class="privacy">Seu e-mail é usado apenas para enviar seu resultado e conteúdos da EnglishHub.</div>
+    </div>
+  `;
+  const emailInput = document.getElementById('leadEmail');
+  const errorEl = document.getElementById('gateError');
+  const submitBtn = document.getElementById('gateSubmit');
+  submitBtn.addEventListener('click', async ()=>{
+    const email = emailInput.value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!emailRegex.test(email)){
+      errorEl.textContent = 'Digite um e-mail válido.';
+      return;
+    }
+    errorEl.textContent = '';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando...';
+    await saveLead(email, score);
+    renderResult(score);
+  });
+  emailInput.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') submitBtn.click();
+  });
+}
+
+async function saveLead(email, score){
+  const result = computeLevel(score);
+  const key = `lead:${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+  const payload = {
+    email,
+    score,
+    level: result.code,
+    date: new Date().toISOString()
+  };
+  try{
+    await window.storage.set(key, JSON.stringify(payload), true);
+  } catch(err){
+    console.error('Falha ao salvar lead:', err);
+  }
+}
+
+function renderResult(){
+  current = questions.length; // fills ladder fully
+  renderLadder();
+  const score = answers.reduce((acc,a,i)=> acc + (a===questions[i].correct?1:0), 0);
+  const result = computeLevel(score);
+  card.innerHTML = `
+    <div class="result">
+      <h2>Resultado</h2>
+      <div class="level-badge">${result.code}</div>
+      <p class="desc">${result.desc}</p>
+      <div class="score-line">Pontuação: ${score} de ${questions.length} acertos</div>
+      <button class="restart" id="restartBtn">Refazer o teste</button>
+    </div>
+  `;
+  document.getElementById('restartBtn').addEventListener('click', ()=>{
+    current = 0;
+    answers = new Array(questions.length).fill(null);
+    renderQuestion();
+  });
+}
+
+const ADMIN_PASSCODE = "marcela2026";
+
+function renderAdminLogin(){
+  card.innerHTML = `
+    <div class="gate">
+      <h2>Painel de leads</h2>
+      <p>Digite a senha para ver os e-mails capturados.</p>
+      <input type="text" id="adminPass" placeholder="Senha">
+      <div class="error" id="adminError"></div>
+      <button class="restart" id="adminSubmit">Entrar</button>
+    </div>
+  `;
+  const passInput = document.getElementById('adminPass');
+  const errorEl = document.getElementById('adminError');
+  document.getElementById('adminSubmit').addEventListener('click', async ()=>{
+    if(passInput.value !== ADMIN_PASSCODE){
+      errorEl.textContent = 'Senha incorreta.';
+      return;
+    }
+    await renderAdminPanel();
+  });
+  passInput.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') document.getElementById('adminSubmit').click();
+  });
+}
+
+async function renderAdminPanel(){
+  card.innerHTML = `<div class="gate"><h2>Carregando leads...</h2></div>`;
+  let leads = [];
+  try{
+    const list = await window.storage.list('lead:', true);
+    if(list && list.keys && list.keys.length){
+      for(const key of list.keys){
+        try{
+          const item = await window.storage.get(key, true);
+          if(item && item.value) leads.push(JSON.parse(item.value));
+        } catch(e){ /* skip unreadable entry */ }
+      }
+    }
+  } catch(err){
+    console.error('Falha ao carregar leads:', err);
+  }
+  leads.sort((a,b)=> new Date(b.date) - new Date(a.date));
+  const rows = leads.map(l=>`
+    <tr>
+      <td>${l.email}</td>
+      <td>${l.level}</td>
+      <td>${l.score}</td>
+      <td>${new Date(l.date).toLocaleString('pt-BR')}</td>
+    </tr>
+  `).join('');
+  card.innerHTML = `
+    <div class="q-meta">Painel de leads · ${leads.length} registro(s)</div>
+    ${leads.length ? `
+      <table class="lead-table">
+        <thead><tr><th>E-mail</th><th>Nível</th><th>Pontos</th><th>Data</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    ` : `<p style="font-family:-apple-system, sans-serif; color:#8a7f7c; font-size:14px;">Nenhum lead capturado ainda.</p>`}
+    <div class="nav-row" style="margin-top:20px;">
+      <button class="back-btn" id="adminBack">&larr; Voltar ao teste</button>
+      <span></span>
+    </div>
+  `;
+  document.getElementById('adminBack').addEventListener('click', ()=>{
+    current = 0;
+    answers = new Array(questions.length).fill(null);
+    renderQuestion();
+  });
+}
+
+document.getElementById('adminLink').addEventListener('click', (e)=>{
+  e.preventDefault();
+  renderAdminLogin();
+});
+
+renderQuestion();
+</script>
+</body>
+</html>
