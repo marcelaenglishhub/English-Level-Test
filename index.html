@@ -316,8 +316,6 @@
 
   <div class="card" id="card"></div>
 
-  <div class="admin-link"><a href="#" id="adminLink">painel (admin)</a></div>
-
   <footer>EnglishHub with Marcela · Teste de nivelamento interno</footer>
 </div>
 
@@ -459,19 +457,29 @@ function renderEmailGate(){
   });
 }
 
+const GOOGLE_FORM_ID = "1FAIpQLSfsihNpnIXPDVDoAXhAZqJNZN3DZiUNJXgLUUVe48rf1RBrwQ";
+const GOOGLE_FORM_ENTRIES = {
+  email: "entry.1340579976",
+  level: "entry.338186260",
+  score: "entry.1636974282",
+  date: "entry.1508648500"
+};
+
 async function saveLead(email, score){
   const result = computeLevel(score);
-  const key = `lead:${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
-  const payload = {
-    email,
-    score,
-    level: result.code,
-    date: new Date().toISOString()
-  };
+  const formData = new FormData();
+  formData.append(GOOGLE_FORM_ENTRIES.email, email);
+  formData.append(GOOGLE_FORM_ENTRIES.level, result.code);
+  formData.append(GOOGLE_FORM_ENTRIES.score, String(score));
+  formData.append(GOOGLE_FORM_ENTRIES.date, new Date().toLocaleString('pt-BR'));
   try{
-    await window.storage.set(key, JSON.stringify(payload), true);
+    await fetch(`https://docs.google.com/forms/d/e/${GOOGLE_FORM_ID}/formResponse`, {
+      method: 'POST',
+      mode: 'no-cors', // Google Forms doesn't return a readable response; this just fires the submit
+      body: formData
+    });
   } catch(err){
-    console.error('Falha ao salvar lead:', err);
+    console.error('Falha ao salvar lead no Google Forms:', err);
   }
 }
 
@@ -497,80 +505,6 @@ function renderResult(){
 }
 
 const ADMIN_PASSCODE = "marcela2026";
-
-function renderAdminLogin(){
-  card.innerHTML = `
-    <div class="gate">
-      <h2>Painel de leads</h2>
-      <p>Digite a senha para ver os e-mails capturados.</p>
-      <input type="text" id="adminPass" placeholder="Senha">
-      <div class="error" id="adminError"></div>
-      <button class="restart" id="adminSubmit">Entrar</button>
-    </div>
-  `;
-  const passInput = document.getElementById('adminPass');
-  const errorEl = document.getElementById('adminError');
-  document.getElementById('adminSubmit').addEventListener('click', async ()=>{
-    if(passInput.value !== ADMIN_PASSCODE){
-      errorEl.textContent = 'Senha incorreta.';
-      return;
-    }
-    await renderAdminPanel();
-  });
-  passInput.addEventListener('keydown', (e)=>{
-    if(e.key === 'Enter') document.getElementById('adminSubmit').click();
-  });
-}
-
-async function renderAdminPanel(){
-  card.innerHTML = `<div class="gate"><h2>Carregando leads...</h2></div>`;
-  let leads = [];
-  try{
-    const list = await window.storage.list('lead:', true);
-    if(list && list.keys && list.keys.length){
-      for(const key of list.keys){
-        try{
-          const item = await window.storage.get(key, true);
-          if(item && item.value) leads.push(JSON.parse(item.value));
-        } catch(e){ /* skip unreadable entry */ }
-      }
-    }
-  } catch(err){
-    console.error('Falha ao carregar leads:', err);
-  }
-  leads.sort((a,b)=> new Date(b.date) - new Date(a.date));
-  const rows = leads.map(l=>`
-    <tr>
-      <td>${l.email}</td>
-      <td>${l.level}</td>
-      <td>${l.score}</td>
-      <td>${new Date(l.date).toLocaleString('pt-BR')}</td>
-    </tr>
-  `).join('');
-  card.innerHTML = `
-    <div class="q-meta">Painel de leads · ${leads.length} registro(s)</div>
-    ${leads.length ? `
-      <table class="lead-table">
-        <thead><tr><th>E-mail</th><th>Nível</th><th>Pontos</th><th>Data</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    ` : `<p style="font-family:-apple-system, sans-serif; color:#8a7f7c; font-size:14px;">Nenhum lead capturado ainda.</p>`}
-    <div class="nav-row" style="margin-top:20px;">
-      <button class="back-btn" id="adminBack">&larr; Voltar ao teste</button>
-      <span></span>
-    </div>
-  `;
-  document.getElementById('adminBack').addEventListener('click', ()=>{
-    current = 0;
-    answers = new Array(questions.length).fill(null);
-    renderQuestion();
-  });
-}
-
-document.getElementById('adminLink').addEventListener('click', (e)=>{
-  e.preventDefault();
-  renderAdminLogin();
-});
 
 renderQuestion();
 </script>
