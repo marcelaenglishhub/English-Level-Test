@@ -261,6 +261,79 @@
     margin-top:18px;
   }
 
+  /* Answer review */
+  .review{
+    text-align:left;
+    margin-top:30px;
+    border-top:1px solid #ece1dd;
+    padding-top:22px;
+  }
+  .review-title{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--navy);
+    font-weight:600;
+    margin-bottom:14px;
+    text-align:center;
+  }
+  .review-item{
+    border:1px solid #ece1dd;
+    border-radius:8px;
+    padding:14px 16px;
+    margin-bottom:10px;
+  }
+  .review-item.is-correct{ border-left:3px solid #2e7d4f; }
+  .review-item.is-wrong{ border-left:3px solid var(--marsala); }
+  .review-q-meta{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:11px;
+    color:#8a7f7c;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    margin-bottom:6px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .review-tag{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:11px;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:20px;
+  }
+  .review-tag.is-correct{ color:#2e7d4f; background:#e6f4ec; }
+  .review-tag.is-wrong{ color:var(--marsala); background:#f7e6ea; }
+  .review-q-text{
+    font-size:15.5px;
+    line-height:1.4;
+    color:var(--ink);
+    margin-bottom:10px;
+  }
+  .review-answer-line{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    font-size:13.5px;
+    line-height:1.6;
+  }
+  .review-answer-line .your-answer.is-wrong{ color:var(--marsala); text-decoration:line-through; }
+  .review-answer-line .your-answer.is-correct{ color:#2e7d4f; font-weight:600; }
+  .review-answer-line .correct-answer{ color:#2e7d4f; font-weight:600; }
+  .review-toggle-btn{
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+    background:none;
+    border:1.5px solid var(--navy);
+    color:var(--navy);
+    padding:10px 20px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    margin-top:4px;
+  }
+  .review-toggle-btn:hover{ background:var(--navy-tint); }
+
   /* Admin */
   .admin-link{
     text-align:center;
@@ -483,6 +556,27 @@ async function saveLead(email, score){
   }
 }
 
+function renderReview(){
+  return questions.map((q,i)=>{
+    const yourIndex = answers[i];
+    const isCorrect = yourIndex === q.correct;
+    const yourText = yourIndex === null || yourIndex === undefined ? '(sem resposta)' : q.options[yourIndex];
+    return `
+      <div class="review-item ${isCorrect ? 'is-correct' : 'is-wrong'}">
+        <div class="review-q-meta">
+          <span>Nível ${q.level} · Pergunta ${i+1}</span>
+          <span class="review-tag ${isCorrect ? 'is-correct' : 'is-wrong'}">${isCorrect ? 'Certa' : 'Errada'}</span>
+        </div>
+        <div class="review-q-text">${q.text}</div>
+        <div class="review-answer-line">
+          Sua resposta: <span class="your-answer ${isCorrect ? 'is-correct' : 'is-wrong'}">${yourText}</span>
+          ${isCorrect ? '' : `<br>Resposta correta: <span class="correct-answer">${q.options[q.correct]}</span>`}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 function renderResult(){
   current = questions.length; // fills ladder fully
   renderLadder();
@@ -495,12 +589,26 @@ function renderResult(){
       <p class="desc">${result.desc}</p>
       <div class="score-line">Pontuação: ${score} de ${questions.length} acertos</div>
       <button class="restart" id="restartBtn">Refazer o teste</button>
+      <div>
+        <button class="review-toggle-btn" id="reviewToggleBtn">Ver correção detalhada</button>
+      </div>
+    </div>
+    <div class="review" id="reviewBlock" style="display:none;">
+      <div class="review-title">Correção — pergunta por pergunta</div>
+      ${renderReview()}
     </div>
   `;
   document.getElementById('restartBtn').addEventListener('click', ()=>{
     current = 0;
     answers = new Array(questions.length).fill(null);
     renderQuestion();
+  });
+  const reviewBlock = document.getElementById('reviewBlock');
+  const reviewToggleBtn = document.getElementById('reviewToggleBtn');
+  reviewToggleBtn.addEventListener('click', ()=>{
+    const isHidden = reviewBlock.style.display === 'none';
+    reviewBlock.style.display = isHidden ? 'block' : 'none';
+    reviewToggleBtn.textContent = isHidden ? 'Ocultar correção' : 'Ver correção detalhada';
   });
 }
 
